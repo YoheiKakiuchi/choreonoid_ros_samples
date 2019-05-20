@@ -14,7 +14,7 @@ using namespace cnoid;
 class JoyTopicSubscriberController : public SimpleController, public JoystickInterface
 {
     SharedJoystick* sharedJoystick;
-    ros::NodeHandle node;
+    ros::NodeHandle* node;
     ros::Subscriber joySubscriber;
     std::mutex joyMutex;
     sensor_msgs::Joy tmpJoyState;
@@ -26,12 +26,13 @@ public:
     {
         sharedJoystick = io->getOrCreateSharedObject<SharedJoystick>("joystick");
         sharedJoystick->setJoystick(this);
+        node = new ros::NodeHandle(io->body()->name());
         return true;
     }
 
     virtual bool start() override
     {
-        joySubscriber = node.subscribe("joy", 1, &JoyTopicSubscriberController::joyCallback, this);
+        joySubscriber = node->subscribe("joy", 1, &JoyTopicSubscriberController::joyCallback, this);
         return (bool)joySubscriber;
     }
 
